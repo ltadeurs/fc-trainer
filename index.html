@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>FC Trainer</title>
+    <meta name="description" content="Trainingslogboek voor de sportschool" />
+    <meta name="theme-color" content="#141112" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FC Trainer" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <script type="module" crossorigin src="./assets/index-CQ3k4lyK.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CuumFey1.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      // Noodrem: start de app niet (bijv. ontbrekende bestanden na een update), dan één keer de offline-kopie
+      // wissen en opnieuw van de server laden. De gegevens (IndexedDB) blijven staan.
+      ;(function () {
+        var KEY = 'fcz-recovered'
+        function recover() {
+          if (window.__fczStarted || !navigator.onLine) return
+          try {
+            if (sessionStorage.getItem(KEY)) return
+            sessionStorage.setItem(KEY, '1')
+          } catch (e) {
+            return
+          }
+          var jobs = []
+          // Alleen de eigen service worker en caches; op hetzelfde domein kunnen andere apps staan.
+          if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistration().then(function (r) { return r && r.unregister() }))
+          if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.filter(function (k) { return k.indexOf('fc-trainer-') === 0 }).map(function (k) { return caches.delete(k) })) }))
+          Promise.all(jobs).catch(function () {}).then(function () { location.reload() })
+        }
+        window.addEventListener('error', function (e) {
+          var t = e.target
+          if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) recover()
+        }, true)
+        // Vanuit de offline-kopie hoort de app binnen een paar seconden te starten.
+        setTimeout(function () { if (navigator.serviceWorker && navigator.serviceWorker.controller) recover() }, 12000)
+      })()
+    </script>
+  </body>
+</html>
